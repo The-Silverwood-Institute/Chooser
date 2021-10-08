@@ -249,7 +249,7 @@ const meals = {
     "effort"
   ],
   "Parsnip and Butter Bean Crumble": [
-    "vegetarian",
+    "vegetarian-ish",
     "slow",
     "effort",
     "scales"
