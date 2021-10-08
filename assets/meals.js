@@ -5,14 +5,16 @@ const meals = {
     "scales",
     "freezes",
     "better-next-day",
-    "slow"
+    "slow",
+    "cold-weather"
   ],
   "Mushroom Soup": [
     "vegan",
     "soup",
     "slow",
     "scales",
-    "freezes"
+    "freezes",
+    "cold-weather"
   ],
   "Avocado and coconut soup": [
     "vegan",
@@ -37,12 +39,14 @@ const meals = {
     "soup",
     "scales",
     "vegan",
-    "freezes"
+    "freezes",
+    "cold-weather"
   ],
   "Blue cheese gnocchi": [
     "stodgy",
     "quick",
-    "vegetarian-ish"
+    "vegetarian-ish",
+    "cold-weather"
   ],
   "Stir fry": [
     "quick",
@@ -53,10 +57,12 @@ const meals = {
   ],
   "Beetroot risotto": [
     "vegetarian",
-    "slow"
+    "slow",
+    "hot-weather"
   ],
   "Butternut squash risotto": [
-    "vegan"
+    "vegan",
+    "hot-weather"
   ],
   "Tomato sauce": [
     "freezes",
@@ -72,10 +78,12 @@ const meals = {
   ],
   "Macaroni": [
     "scales",
-    "vegetarian"
+    "vegetarian",
+    "cold-weather"
   ],
   "Salmon pasta": [
-    "pescatarian"
+    "pescatarian",
+    "hot-weather"
   ],
   "Sweet chilli feta pasta": [
     "quick",
@@ -92,7 +100,8 @@ const meals = {
   "Melty mushroom wellingtons": [
     "slow",
     "vegetarian",
-    "stodge"
+    "stodge",
+    "cold-weather"
   ],
   "Courgette and spinach pasties": [
     "slow",
@@ -127,20 +136,24 @@ const meals = {
     "slow",
     "effort",
     "stodge",
-    "scales"
+    "scales",
+    "cold-weather"
   ],
   "Fettucine with Dolcelatte and Spinach": [
     "vegetarian",
-    "quick"
+    "quick",
+    "hot-weather"
   ],
   "Sweetcorn and spinach polenta": [
     "vegetarian-ish",
     "quick",
-    "scales"
+    "scales",
+    "hot-weather"
   ],
   "Ricotta spinach pitas": [
     "quick",
-    "vegetarian"
+    "vegetarian",
+    "hot-weather"
   ],
   "Tuna and rice peppers": [
     "pescatarian",
@@ -148,7 +161,8 @@ const meals = {
   ],
   "Penne with Walnut sauce": [
     "quick",
-    "vegetarian"
+    "vegetarian",
+    "hot-weather"
   ],
   "Dahl": [
     "vegan",
@@ -160,7 +174,8 @@ const meals = {
   ],
   "Kashtouri  (Lentils, Rice and Pasta)": [
     "vegan",
-    "scales"
+    "scales",
+    "hot-weather"
   ],
   "Aubergine curry": [
     "vegan",
@@ -171,7 +186,8 @@ const meals = {
     "vegetarian",
     "slow",
     "effort",
-    "scales"
+    "scales",
+    "cold-weather"
   ],
   "Roast Nut Omelette": [
     "quick",
@@ -198,7 +214,8 @@ const meals = {
   "Spicy Broccoli & Cauliflower": [
     "vegetarian",
     "quick",
-    "scales"
+    "scales",
+    "hot-weather"
   ],
   "Tuna in tomato sauce": [
     "pescatarian"
@@ -240,7 +257,8 @@ const meals = {
   "Pasta & Pesto": [
     "vegetarian-ish",
     "quick",
-    "scales"
+    "scales",
+    "hot-weather"
   ],
   "Gnocchi & Tomato Bake": [
     "vegetarian",
@@ -253,7 +271,8 @@ const meals = {
   "Venetian Style Pasta": [
     "quick",
     "vegan",
-    "scales"
+    "scales",
+    "hot-weather"
   ],
   "Egg & Mozzarella Toasts": [
     "vegetarian",
@@ -262,7 +281,8 @@ const meals = {
   "Vegetable Hot Pot": [
     "vegetarian",
     "slow",
-    "effort"
+    "effort",
+    "cold-weather"
   ],
   "N Bean Chilli": [
     "vegan",
@@ -293,21 +313,25 @@ const meals = {
   "Seafood Lasagne": [
     "pescatarian",
     "slow",
-    "stodge"
+    "stodge",
+    "cold-weather"
   ],
   "Spanakopita (Spinach/feta pastry)": [
     "vegetarian",
     "slow"
   ],
   "Saag paneer": [
-    "vegetarian"
+    "vegetarian",
+    "hot-weather"
   ],
   "Sweet Potato, Peanut Butter and Coconut Curry": [
-    "vegetarian"
+    "vegetarian",
+    "hot-weather"
   ],
   "Vegetable Primavera (baby vegetables, filled pasta and mustard)": [
     "vegetarian",
-    "quick"
+    "quick",
+    "hot-weather"
   ],
   "Russian Mushroom Julienne": [
     "vegetarian",
@@ -333,16 +357,19 @@ const meals = {
   ],
   "Tofu and cashew nut stir fry": [
     "vegan",
-    "quick"
+    "quick",
+    "hot-weather"
   ],
   "Pepper and goats cheese tart": [
     "vegetarian",
     "slow",
-    "stodge"
+    "stodge",
+    "hot-weather"
   ],
   "Courgette and broccoli pasta": [
     "quick",
-    "vegetarian"
+    "vegetarian",
+    "hot-weather"
   ],
   "Cheese scones": [
     "vegetarian",
@@ -360,7 +387,8 @@ const meals = {
     "slow",
     "effort",
     "scales",
-    "stodge"
+    "stodge",
+    "cold-weather"
   ],
   "Kidney Bean & Vegetable gratin": [
     "vegetarian-ish",
@@ -394,11 +422,13 @@ const meals = {
   ],
   "Baked potatoes": [
     "slow",
-    "vegetarian"
+    "vegetarian",
+    "cold-weather"
   ],
   "Broccoli, pine nut and kidney bean pasta": [
     "vegetarian",
     "quick",
-    "scales"
+    "scales",
+    "hot-weather"
   ]
 }
