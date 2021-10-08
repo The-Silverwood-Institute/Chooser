@@ -25,6 +25,11 @@ const renderFilteredMeals = (includeTags, excludeTags) => {
   listEl.classList.add('mdc-list', 'mdc-list--two-line');
 
   const filterMeals = includeTags.length > 0 || excludeTags.length > 0;
+  document.getElementById('requires-box').hidden = includeTags.length == 0;
+  document.getElementById('requires').textContent = includeTags.join(', ');
+  document.getElementById('excludes-box').hidden = excludeTags.length == 0;
+  document.getElementById('excludes').textContent = excludeTags.join(', ');
+
   const mealEntries = Object.entries(meals);
 
   const visibleMeals = !filterMeals ? mealEntries : mealEntries.filter(mealEntry =>

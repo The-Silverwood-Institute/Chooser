@@ -14,6 +14,10 @@ main {
   width: 100%;
 }
 
+#count-box {
+  text-align: right;
+}
+
 footer a {
   margin: .5rem;
 }
