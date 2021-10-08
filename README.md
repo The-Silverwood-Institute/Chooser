@@ -1,10 +1,8 @@
-# Web App Template
+# Meal Chooser
 
-The boilerplate for a basic web app
+Tag based meal search, to help decide what to cook for dinner.
 
-- HTML file linking CSS/JS files
-- Material Design Components (v6)
-- Code of Conduct/MIT License
+The plan is to eventually incorporate this project into [Reciba.se](https://github.com/The-Silverwood-Institute/Recibase), once it hosts all of our recipes.
 
 ## Local setup
 
