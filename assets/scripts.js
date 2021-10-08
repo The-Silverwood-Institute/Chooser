@@ -21,7 +21,7 @@ const tagsMatchQuery = (tags, includeTags, excludeTags) =>
 
 const renderFilteredMeals = (includeTags, excludeTags) => {
   const listEl = document.createElement('ul');
-  listEl.id = 'recipe-list';
+  listEl.id = 'meal-list';
   listEl.classList.add('mdc-list', 'mdc-list--two-line');
 
   const filterMeals = includeTags.length > 0 || excludeTags.length > 0;
@@ -57,7 +57,7 @@ const renderFilteredMeals = (includeTags, excludeTags) => {
     listEl.appendChild(wrapperEl);
   }
 
-  document.getElementById('recipe-list').replaceWith(listEl);
+  document.getElementById('meal-list').replaceWith(listEl);
 };
 
 tagsSearchEl.dispatchEvent(new Event('input', {
