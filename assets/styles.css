@@ -10,6 +10,10 @@ main {
   max-width: 1200px;
 }
 
+.mdc-text-field {
+  width: 100%;
+}
+
 footer a {
   margin: .5rem;
 }

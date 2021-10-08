@@ -31,6 +31,24 @@
     <main>
       <h1 class="mdc-typography mdc-typography--headline1">Recipe Chooser</h1>
 
+      <div class="mdc-text-field mdc-text-field--with-leading-icon mdc-text-field--filled">
+        <i class="material-icons mdc-text-field__icon" aria-hidden="true">search</i>
+        <input type="text" id="tags-search" class="mdc-text-field__input">
+        <label class="mdc-floating-label" for="tags-search">Filter by Tags</label>
+        <div class="mdc-line-ripple"></div>
+      </div>
+
+      <div id="meta">
+        <div>
+          <em>Available Tags:</em>
+          <em id="tags-list"></em>
+        </div>
+        <div>
+          <em>Count:</em>
+          <em id="count"></em>
+        </div>
+      </div>
+
       <p id="recipe-list">Loading recipes...</p>
     </main>
 
