@@ -31,6 +31,10 @@
     <main>
       <h1 class="mdc-typography mdc-typography--headline1">Recipe Chooser</h1>
 
+      <p>A portion of these recipes are hosted on <a href="https://reciba.se/">Reciba.se</a>.</p>
+
+      <p>Currently tag only search with no tag hierarchy. Tag list: <em id="tags-list"></em>.</p>
+
       <div class="mdc-text-field mdc-text-field--with-leading-icon mdc-text-field--filled">
         <i class="material-icons mdc-text-field__icon" aria-hidden="true">search</i>
         <input type="text" id="tags-search" class="mdc-text-field__input">
@@ -39,21 +43,17 @@
       </div>
 
       <div id="meta">
-        <div>
-          Available Tags:
-          <em id="tags-list"></em>
-        </div>
-        <div id="requires-box">
+        <div id="requires-box" hidden>
           Requires:
           <em id="requires"></em>
         </div>
-        <div id="excludes-box">
+        <div id="excludes-box" hidden>
           Excludes:
           <em id="excludes"></em>
         </div>
         <div id="count-box">
           Count:
-          <em id="count"></em>
+          <em id="count">0</em>
         </div>
       </div>
 
