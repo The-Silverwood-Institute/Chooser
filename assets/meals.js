@@ -43,7 +43,7 @@ const meals = {
     "cold-weather"
   ],
   "Blue cheese gnocchi": [
-    "stodgy",
+    "stodge",
     "quick",
     "vegetarian-ish",
     "cold-weather"
