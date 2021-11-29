@@ -79,7 +79,8 @@ const meals = {
   "Macaroni": [
     "scales",
     "vegetarian",
-    "cold-weather"
+    "cold-weather",
+    "stodge"
   ],
   "Salmon pasta": [
     "pescatarian",
