@@ -1,8 +1,4 @@
 body {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   margin-top: 0;
 }
 
@@ -14,8 +10,16 @@ main {
   width: 100%;
 }
 
+#requires-box {
+  float: left
+}
+
 #count-box {
   text-align: right;
+}
+
+.mdc-list-item__secondary-text {
+  white-space: normal;
 }
 
 footer a {
