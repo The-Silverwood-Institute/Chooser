@@ -1,5 +1,5 @@
 const tagsSearchEl = document.getElementById('tags-search');
-const tags = new Set(Object.values(meals).flat());
+const tags = new Set(meals.flatMap(meal => meal.tags));
 
 document.getElementById('tags-list').textContent = Array.from(tags).join(', ');
 
@@ -30,22 +30,20 @@ const renderFilteredMeals = (includeTags, excludeTags) => {
   document.getElementById('excludes-box').hidden = excludeTags.length == 0;
   document.getElementById('excludes').textContent = excludeTags.join(', ');
 
-  const mealEntries = Object.entries(meals);
-
-  const visibleMeals = !filterMeals ? mealEntries : mealEntries.filter(mealEntry =>
-    tagsMatchQuery(mealEntry[1], includeTags, excludeTags)
+  const visibleMeals = !filterMeals ? meals : meals.filter(meal =>
+    tagsMatchQuery(meal.tags, includeTags, excludeTags)
   );
 
   document.getElementById('count').textContent = visibleMeals.length;
 
-  for (const [name, tags] of visibleMeals) {
+  visibleMeals.forEach(meal => {
     const titleEl = document.createElement('span');
     titleEl.classList.add('mdc-list-item__primary-text');
-    titleEl.textContent = name;
+    titleEl.textContent = meal.name;
 
     const tagsEl = document.createElement('span');
     tagsEl.classList.add('mdc-list-item__secondary-text');
-    tagsEl.textContent = tags.join(', ');
+    tagsEl.textContent = meal.tags.join(', ');
 
     const wrapperEl = document.createElement('span');
     wrapperEl.classList.add('mdc-list-item__text');
@@ -55,7 +53,7 @@ const renderFilteredMeals = (includeTags, excludeTags) => {
     const listItemEl = document.createElement('li');
     listItemEl.classList.add('mdc-list-item');
     listEl.appendChild(wrapperEl);
-  }
+  });
 
   document.getElementById('meal-list').replaceWith(listEl);
 };
