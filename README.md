@@ -4,6 +4,11 @@ Tag based meal search, to help decide what to cook for dinner.
 
 The plan is to eventually incorporate this project into [Reciba.se](https://github.com/The-Silverwood-Institute/Recibase), once it hosts all of our recipes.
 
+To output the list of meals use:
+```js
+meals.map(meal => meal.name).join("\n")
+```
+
 ## Local setup
 
 1. Fork + clone the project (consider using [GitHub Desktop](https://desktop.github.com/) if you're unfamiliar with git)
