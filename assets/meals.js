@@ -693,12 +693,11 @@ const meals = [
     ]
   ),
   new Meal(
-    "Broccoli, pine nut and kidney bean pasta",
+    "Beyond Burgers",
     [
       "vegetarian",
       "quick",
-      "scales",
-      "hot-weather"
+      "stodge"
     ]
   )
 ];
