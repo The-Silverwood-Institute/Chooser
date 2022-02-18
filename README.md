@@ -6,7 +6,7 @@ The plan is to eventually incorporate this project into [Reciba.se](https://gith
 
 To output the list of meals use:
 ```js
-meals.map(meal => meal.name).join("\n")
+meals.map(meal => meal.name).concat("Takeaway").join("\n")
 ```
 
 ## Local setup
