@@ -699,5 +699,12 @@ const meals = [
       "quick",
       "stodge"
     ]
+  ),
+  new Meal(
+    "Roasted Vegetable Tart",
+    [
+      "vegetarian",
+      "hot-weather"
+    ]
   )
 ];
