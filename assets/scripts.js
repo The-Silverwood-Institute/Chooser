@@ -1,4 +1,4 @@
-const mealsUrl = 'http://localhost:8081/meals/'
+const mealsUrl = 'https://api.reciba.se/meals/'
 
 fetch(mealsUrl)
   .then(resp => resp.json())
