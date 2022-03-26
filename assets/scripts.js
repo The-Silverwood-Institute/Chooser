@@ -58,8 +58,13 @@ fetch(mealsUrl)
         const mealSourceUrl = meal.source ? getMealUrl(meal.source) : null;
 
         if (mealSourceUrl) {
+          titleEl.textContent += ` [${meal.source.type[0].toUpperCase()}]`
           const linkEl = document.createElement('a');
           linkEl.href = mealSourceUrl;
+
+          if (meal.source.type = 'online') {
+            linkEl.rel = 'nofollow';
+          }
 
           linkEl.appendChild(titleEl);
           wrapperEl.appendChild(linkEl);
