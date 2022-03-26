@@ -55,10 +55,11 @@ fetch(mealsUrl)
         const wrapperEl = document.createElement('span');
         wrapperEl.classList.add('mdc-list-item__text');
 
-        if (meal.source) {
+        const mealSourceUrl = meal.source ? getMealUrl(meal.source) : null;
+
+        if (mealSourceUrl) {
           const linkEl = document.createElement('a');
-          const href = meal.source.type == 'recibase' ? `https://reciba.se/${meal.source.permalink}` : meal.source.url;
-          linkEl.href = href;
+          linkEl.href = mealSourceUrl;
 
           linkEl.appendChild(titleEl);
           wrapperEl.appendChild(linkEl);
@@ -81,6 +82,19 @@ fetch(mealsUrl)
         cancelable: true,
     }));
 });
+
+const getMealUrl = (source) => {
+  if (source.type == 'recibase') {
+    return `https://reciba.se/${source.permalink}`;
+  } else if (source.type == 'google_drive') {
+    return `https://docs.google.com/document/d/${source.id}/`;
+  } else if (source.type == 'online') {
+    return source.url;
+  } else {
+    console.warn(`Unknown meal source type "${source.type}"`);
+    return null;
+  }
+}
 
 const displayNoticeIfStillLoading = () => {
   const stillLoadingIndicatorEl = document.getElementById('still-loading');
