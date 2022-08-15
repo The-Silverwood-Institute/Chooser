@@ -11,7 +11,7 @@ fetch(mealsUrl)
 
     tagsSearchEl.addEventListener('input', ev => {
       const searchQuery = ev.target.value;
-      const searchTerms = searchQuery.toLowerCase().split(', ').filter(t => t);
+      const searchTerms = searchQuery.toLowerCase().split(', ').map(t => t.trim()).filter(t => t);
       const includeTags = searchTerms.map(term => normalisedTags.get(term)).filter(res => res != undefined);
       const excludeTags = searchTerms
         .filter(term => term.startsWith('-') || term.startsWith('!'))
