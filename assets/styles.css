@@ -2,7 +2,7 @@ body {
   margin-top: 0;
 }
 
-h1.mdc-typography { 
+h1.mdc-typography {
   font-size: 3rem;
 }
 
@@ -15,12 +15,31 @@ main {
   width: 100%;
 }
 
-#requires-box {
-  float: left
-}
-
 #count-box {
   text-align: right;
+  padding-right: 4px;
+}
+
+#meta div {
+  width: 100%;
+}
+
+@media (min-width: 450px) {
+  #meta {
+    overflow: auto;
+  }
+
+  #meta div {
+    float: left;
+    clear: left;
+    width: auto;
+  }
+
+  #meta #count-box {
+    text-align: left;
+    float: right;
+    clear: none;
+  }
 }
 
 .mdc-list-item__secondary-text {
