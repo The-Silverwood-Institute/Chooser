@@ -17,8 +17,7 @@ fetch(mealsUrl)
         .filter(term => term.startsWith('-') || term.startsWith('!'))
         .map(term => term.slice(1))
         .map(term => normalisedTags.get(term))
-        .filter(res => res != undefined)
-        .concat(["Not a Meal", "Pudding", "Lunch"]);
+        .filter(res => res != undefined);
 
       renderFilteredMeals(includeTags, excludeTags);
     });
