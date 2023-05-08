@@ -91,7 +91,7 @@ const getMealUrl = (source) => {
   if (source.type == 'recibase') {
     return `https://reciba.se/${source.permalink}`;
   } else if (source.type == 'google_drive') {
-    return `https://drive.google.com/file/d/${source.link}/view`;
+    return `https://drive.google.com/file/d/${source.id}/view`;
   } else if (source.type == 'online') {
     return source.url;
   } else {
