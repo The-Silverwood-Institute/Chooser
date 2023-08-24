@@ -23,7 +23,6 @@ fetch(mealsUrl)
       .map(term => term.slice(1))
       .map(term => normalisedTags.get(term))
       .filter(res => res != undefined);
-      console.log(includeTagsWithInherited);
 
       renderFilteredMeals(includeTags, includeTagsWithInherited, excludeTags);
     });
