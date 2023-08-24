@@ -18,26 +18,34 @@ fetch(mealsUrl)
         .map(term => term.slice(1))
         .map(term => normalisedTags.get(term))
         .filter(res => res != undefined);
+      const includeTagsWithInherited = searchTerms
+      .filter(term => term.startsWith('<'))
+      .map(term => term.slice(1))
+      .map(term => normalisedTags.get(term))
+      .filter(res => res != undefined);
+      console.log(includeTagsWithInherited);
 
-      renderFilteredMeals(includeTags, excludeTags);
+      renderFilteredMeals(includeTags, includeTagsWithInherited, excludeTags);
     });
 
-    const tagsMatchQuery = (tags, includeTags, excludeTags) =>
-      includeTags.every(tag => tags.includes(tag)) && !tags.some(tag => excludeTags.includes(tag));
+    const tagsMatchQuery = (tags, inheritedTags, includeTags, includeTagsWithInherited, excludeTags) =>
+      includeTags.every(tag => tags.includes(tag))
+        && !tags.some(tag => excludeTags.includes(tag))
+        && includeTagsWithInherited.every(tag => tags.includes(tag) || inheritedTags.includes(tag));
 
-    const renderFilteredMeals = (includeTags, excludeTags) => {
+    const renderFilteredMeals = (includeTags, includeTagsWithInherited, excludeTags) => {
       const listEl = document.createElement('ul');
       listEl.id = 'meal-list';
       listEl.classList.add('mdc-list', 'mdc-list--two-line');
 
       const filterMeals = includeTags.length > 0 || excludeTags.length > 0;
-      document.getElementById('requires-box').hidden = includeTags.length == 0;
-      document.getElementById('requires').textContent = includeTags.join(', ');
+      document.getElementById('requires-box').hidden = includeTags.length == 0 && includeTagsWithInherited.length == 0;
+      document.getElementById('requires').textContent = includeTags.concat(includeTagsWithInherited.map(tag => `<${tag}`));
       document.getElementById('excludes-box').hidden = excludeTags.length == 0;
       document.getElementById('excludes').textContent = excludeTags.join(', ');
 
       const visibleMeals = !filterMeals ? meals : meals.filter(meal =>
-        tagsMatchQuery(meal.tags, includeTags, excludeTags)
+        tagsMatchQuery(meal.tags, meal.inherited_tags, includeTags, includeTagsWithInherited, excludeTags)
       );
 
       document.getElementById('count').textContent = visibleMeals.length;
