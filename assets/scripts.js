@@ -1,9 +1,10 @@
 const mealsUrl = 'https://api.reciba.se/meals/'
+const tagsSearchEl = document.getElementById('tags-search');
+const defaultSearchQuery = tagsSearchEl.value;
 
 fetch(mealsUrl)
   .then(resp => resp.json())
   .then(meals => {
-    const tagsSearchEl = document.getElementById('tags-search');
     const tags = new Set(meals.flatMap(meal => meal.tags));
     const normalisedTags = new Map([...tags].map(tag => [tag.toLowerCase(), tag]))
 
@@ -25,6 +26,7 @@ fetch(mealsUrl)
       .filter(res => res != undefined);
 
       renderFilteredMeals(includeTags, includeTagsWithInherited, excludeTags);
+      saveSearchQueryToHash(searchQuery);
     });
 
     const tagsMatchQuery = (tags, inheritedTags, includeTags, includeTagsWithInherited, excludeTags) =>
@@ -88,9 +90,13 @@ fetch(mealsUrl)
       document.getElementById('meal-list').replaceWith(listEl);
     };
 
+    if (location.hash.length > 0) {
+      loadSearchQueryFromHash();
+    }
+
     tagsSearchEl.dispatchEvent(new Event('input', {
-        bubbles: true,
-        cancelable: true,
+      bubbles: true,
+      cancelable: true,
     }));
 });
 
@@ -114,6 +120,17 @@ const displayNoticeIfStillLoading = () => {
     stillLoadingIndicatorEl.hidden = false;
   }
 }
+
+const saveSearchQueryToHash = (searchQuery) => {
+  if (searchQuery != defaultSearchQuery) {
+    location.hash = encodeURIComponent(searchQuery);
+  }
+};
+
+const loadSearchQueryFromHash = () => {
+  console.log(decodeURI(location.hash.slice(1)));
+  tagsSearchEl.value = decodeURIComponent(location.hash.slice(1));
+};
 
 setTimeout(displayNoticeIfStillLoading, 2000);
 
