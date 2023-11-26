@@ -68,7 +68,7 @@ fetch(mealsUrl)
           const linkEl = document.createElement('a');
           linkEl.href = mealSourceUrl;
 
-          if (meal.source.type = 'online') {
+          if (meal.source.type == 'online') {
             linkEl.rel = 'nofollow';
           }
 
