@@ -1,10 +1,15 @@
 const mealsUrl = 'https://api.reciba.se/meals/'
 const tagsSearchEl = document.getElementById('tags-search');
 const defaultSearchQuery = tagsSearchEl.value;
+const defaultDate = new Date(0);
 
 fetch(mealsUrl)
   .then(resp => resp.json())
-  .then(meals => {
+  .then(rawMeals => {
+    const meals = rawMeals.map(meal => {
+      meal.last_eaten = meal.last_eaten !== null ? new Date(meal.last_eaten) : null;
+      return meal;
+    });
     const tags = new Set(meals.flatMap(meal => meal.tags));
     const normalisedTags = new Map([...tags].map(tag => [tag.toLowerCase(), tag]))
 
@@ -51,7 +56,7 @@ fetch(mealsUrl)
 
       document.getElementById('count').textContent = visibleMeals.length;
 
-      visibleMeals.forEach(meal => {
+      visibleMeals.sort(sortByLastEaten).forEach(meal => {
         const titleEl = document.createElement('span');
         titleEl.classList.add('mdc-list-item__primary-text');
         titleEl.textContent = meal.name;
@@ -81,6 +86,14 @@ fetch(mealsUrl)
         }
 
         wrapperEl.appendChild(tagsEl);
+
+        if (meal.last_eaten !== null) {
+          const lastEatenEl = document.createElement('span');
+          lastEatenEl.classList.add('mdc-list-item__secondary-text', 'last-eaten');
+          lastEatenEl.textContent = `Last eaten: ${meal.last_eaten.toLocaleDateString()}`
+
+          wrapperEl.appendChild(lastEatenEl);
+        }
 
         const listItemEl = document.createElement('li');
         listItemEl.classList.add('mdc-list-item');
@@ -131,6 +144,13 @@ const loadSearchQueryFromHash = () => {
   console.log(decodeURI(location.hash.slice(1)));
   tagsSearchEl.value = decodeURIComponent(location.hash.slice(1));
 };
+
+const sortByLastEaten = (left, right) => {
+  const leftDate = left.last_eaten !== null ? left.last_eaten : defaultDate;
+  const rightDate = right.last_eaten !== null ? right.last_eaten : defaultDate;
+
+  return leftDate - rightDate;
+}
 
 setTimeout(displayNoticeIfStillLoading, 2000);
 
