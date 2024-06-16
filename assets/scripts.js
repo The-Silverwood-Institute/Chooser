@@ -29,21 +29,31 @@ fetch(mealsUrl)
         .map(term => normalisedTags.get(term))
         .filter(res => res != undefined);
       const includeTagsWithInherited = searchTerms
-      .filter(term => term.startsWith('<'))
+      .filter(term => term.startsWith('<') && !term.startsWith('<!'))
       .map(term => term.slice(1))
       .map(term => normalisedTags.get(term))
       .filter(res => res != undefined);
+      console.log(searchTerms);
+      const excludeTagsWithInherited = searchTerms
+      .filter(term => term.startsWith('<!'))
+      .map(term => term.slice(2))
+      .map(term => {
+        console.log(normalisedTags.get(term));
+        return normalisedTags.get(term);
+      })
+      .filter(res => res != undefined);
 
-      renderFilteredMeals(includeTags, includeTagsWithInherited, excludeTags);
+      renderFilteredMeals(includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited);
       delayedSaveSearchQueryToHash(searchQuery);
     });
 
-    const tagsMatchQuery = (tags, inheritedTags, includeTags, includeTagsWithInherited, excludeTags) =>
+    const tagsMatchQuery = (tags, inheritedTags, includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited) =>
       includeTags.every(tag => tags.includes(tag))
         && !tags.some(tag => excludeTags.includes(tag))
-        && includeTagsWithInherited.every(tag => tags.includes(tag) || inheritedTags.includes(tag));
+        && includeTagsWithInherited.every(tag => tags.includes(tag) || inheritedTags.includes(tag))
+        && !(tags.some(tag => excludeTagsWithInherited.includes(tag)) || inheritedTags.some(tag => excludeTagsWithInherited.includes(tag)));
 
-    const renderFilteredMeals = (includeTags, includeTagsWithInherited, excludeTags) => {
+    const renderFilteredMeals = (includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited) => {
       const listEl = document.createElement('ul');
       listEl.id = 'meal-list';
       listEl.classList.add('mdc-list', 'mdc-list--two-line');
@@ -51,11 +61,11 @@ fetch(mealsUrl)
       const filterMeals = includeTags.length > 0 || excludeTags.length > 0;
       document.getElementById('requires-box').hidden = includeTags.length == 0 && includeTagsWithInherited.length == 0;
       document.getElementById('requires').textContent = includeTags.concat(includeTagsWithInherited.map(tag => `<${tag}`));
-      document.getElementById('excludes-box').hidden = excludeTags.length == 0;
-      document.getElementById('excludes').textContent = excludeTags.join(', ');
+      document.getElementById('excludes-box').hidden = excludeTags.length == 0 && excludeTagsWithInherited.length == 0;
+      document.getElementById('excludes').textContent = excludeTags.concat(excludeTagsWithInherited.map(tag => `<!${tag}`));
 
       const visibleMeals = !filterMeals ? meals : meals.filter(meal =>
-        tagsMatchQuery(meal.tags, meal.inherited_tags, includeTags, includeTagsWithInherited, excludeTags)
+        tagsMatchQuery(meal.tags, meal.inherited_tags, includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited)
       );
 
       document.getElementById('count').textContent = visibleMeals.length;
