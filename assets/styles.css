@@ -15,44 +15,26 @@ main {
   width: 100%;
 }
 
-#count-box {
-  text-align: right;
-  padding-right: 4px;
-}
-
-#sort-box {
-  text-align: right;
-  padding-right: 4px;
-  cursor: pointer;
-}
-
 .last-eaten {
   font-style: italic;
 }
 
-#meta div {
-  width: 100%;
+#meta {
+  overflow: auto;
 }
 
-@media (min-width: 450px) {
-  #meta {
-    overflow: auto;
-  }
+#meta > div {
+  width: 50%;
+  float: left;
+}
 
-  #meta div {
-    float: left;
-    clear: left;
-    width: auto;
-  }
+#meta > div.right > div {
+  text-align: right;
+  padding-right: 4px;
+}
 
-  #meta #count-box, #meta #sort-box {
-    text-align: left;
-    float: right;
-  }
-
-  #meta #count-box {
-    clear: right;
-  }
+#meta #sort-box {
+  cursor: pointer;
 }
 
 .mdc-list-item__secondary-text {
