@@ -2,6 +2,7 @@ const mealsUrl = 'https://api.reciba.se/meals/'
 const tagsSearchEl = document.getElementById('tags-search');
 const defaultSearchQuery = tagsSearchEl.value;
 const defaultDate = new Date(0);
+var inactivityTimer;
 
 fetch(mealsUrl)
   .then(resp => resp.json())
@@ -31,7 +32,7 @@ fetch(mealsUrl)
       .filter(res => res != undefined);
 
       renderFilteredMeals(includeTags, includeTagsWithInherited, excludeTags);
-      saveSearchQueryToHash(searchQuery);
+      delayedSaveSearchQueryToHash(searchQuery);
     });
 
     const tagsMatchQuery = (tags, inheritedTags, includeTags, includeTagsWithInherited, excludeTags) =>
@@ -133,6 +134,12 @@ const displayNoticeIfStillLoading = () => {
     stillLoadingIndicatorEl.hidden = false;
   }
 }
+
+const delayedSaveSearchQueryToHash = (searchQuery) => {
+  clearTimeout(inactivityTimer);
+
+  inactivityTimer = setTimeout(() => saveSearchQueryToHash(searchQuery), 500);
+};
 
 const saveSearchQueryToHash = (searchQuery) => {
   if (searchQuery != defaultSearchQuery) {
