@@ -179,6 +179,14 @@ const sortingMethods = [
     sortFunction : sortByLastEaten(false)
   },
   {
+    name: "Times Eaten ▲",
+    sortFunction : (left, right) => left.times_eaten - right.times_eaten
+  },
+  {
+    name: "Times Eaten ▼",
+    sortFunction : (left, right) => right.times_eaten - left.times_eaten
+  },
+  {
     name: "Name ▼",
     sortFunction: (left, right) => left.name.localeCompare(right.name)
   },
