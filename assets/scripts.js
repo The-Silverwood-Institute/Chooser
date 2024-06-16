@@ -1,8 +1,11 @@
 const mealsUrl = 'https://api.reciba.se/meals/'
 const tagsSearchEl = document.getElementById('tags-search');
+const sortBoxEl = document.getElementById('sort-box');
+const sortNameEl = document.getElementById('sort-name');
 const defaultSearchQuery = tagsSearchEl.value;
 const defaultDate = new Date(0);
 var inactivityTimer;
+var currentSortingMethodIndex = 0;
 
 fetch(mealsUrl)
   .then(resp => resp.json())
@@ -57,7 +60,7 @@ fetch(mealsUrl)
 
       document.getElementById('count').textContent = visibleMeals.length;
 
-      visibleMeals.sort(sortByLastEaten).forEach(meal => {
+      visibleMeals.sort(sortingMethods[currentSortingMethodIndex].sortFunction).forEach(meal => {
         const titleEl = document.createElement('span');
         titleEl.classList.add('mdc-list-item__primary-text');
         titleEl.textContent = meal.name;
@@ -108,10 +111,7 @@ fetch(mealsUrl)
       loadSearchQueryFromHash();
     }
 
-    tagsSearchEl.dispatchEvent(new Event('input', {
-      bubbles: true,
-      cancelable: true,
-    }));
+    reloadMealList();
 });
 
 const getMealUrl = (source) => {
@@ -148,16 +148,53 @@ const saveSearchQueryToHash = (searchQuery) => {
 };
 
 const loadSearchQueryFromHash = () => {
-  console.log(decodeURI(location.hash.slice(1)));
   tagsSearchEl.value = decodeURIComponent(location.hash.slice(1));
 };
 
-const sortByLastEaten = (left, right) => {
+const reloadMealList = () => {
+  tagsSearchEl.dispatchEvent(new Event('input', {
+    bubbles: true,
+    cancelable: true,
+  }));
+};
+
+const sortByLastEaten = (isAscending) => (left, right) => {
   const leftDate = left.last_eaten !== null ? left.last_eaten : defaultDate;
   const rightDate = right.last_eaten !== null ? right.last_eaten : defaultDate;
 
-  return leftDate - rightDate;
-}
+  if (isAscending) {
+    return leftDate - rightDate;
+  } else {
+    return rightDate - leftDate;
+  }
+};
+
+const sortingMethods = [
+  {
+    name: "Last Eaten ▲",
+    sortFunction : sortByLastEaten(true)
+  },
+  {
+    name: "Last Eaten ▼",
+    sortFunction : sortByLastEaten(false)
+  },
+  {
+    name: "Name ▼",
+    sortFunction: (left, right) => left.name.localeCompare(right.name)
+  },
+  {
+    name: "Name ▲",
+    sortFunction: (left, right) => right.name.localeCompare(left.name)
+  }
+];
+
+const changeSortingMethod = () => {
+  currentSortingMethodIndex = (currentSortingMethodIndex + 1) % sortingMethods.length;
+  sortNameEl.textContent = sortingMethods[currentSortingMethodIndex].name;
+  reloadMealList();
+};
+
+sortBoxEl.addEventListener('click', changeSortingMethod);
 
 setTimeout(displayNoticeIfStillLoading, 2000);
 

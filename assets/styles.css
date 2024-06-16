@@ -20,6 +20,12 @@ main {
   padding-right: 4px;
 }
 
+#sort-box {
+  text-align: right;
+  padding-right: 4px;
+  cursor: pointer;
+}
+
 .last-eaten {
   font-style: italic;
 }
@@ -39,10 +45,13 @@ main {
     width: auto;
   }
 
-  #meta #count-box {
+  #meta #count-box, #meta #sort-box {
     text-align: left;
     float: right;
-    clear: none;
+  }
+
+  #meta #count-box {
+    clear: right;
   }
 }
 
