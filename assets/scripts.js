@@ -4,8 +4,10 @@ const sortBoxEl = document.getElementById('sort-box');
 const sortNameEl = document.getElementById('sort-name');
 const defaultSearchQuery = tagsSearchEl.value;
 const defaultDate = new Date(0);
+const defaultSortingMethodIndex = 0;
+const hashStringRegex = /^(\d+)\-(.+)$/;
 var inactivityTimer;
-var currentSortingMethodIndex = 0;
+var currentSortingMethodIndex = defaultSortingMethodIndex;
 
 fetch(mealsUrl)
   .then(resp => resp.json())
@@ -29,19 +31,19 @@ fetch(mealsUrl)
         .map(term => normalisedTags.get(term))
         .filter(res => res != undefined);
       const includeTagsWithInherited = searchTerms
-      .filter(term => term.startsWith('<') && !term.startsWith('<!'))
-      .map(term => term.slice(1))
-      .map(term => normalisedTags.get(term))
-      .filter(res => res != undefined);
+        .filter(term => term.startsWith('<') && !term.startsWith('<!'))
+        .map(term => term.slice(1))
+        .map(term => normalisedTags.get(term))
+        .filter(res => res != undefined);
       console.log(searchTerms);
       const excludeTagsWithInherited = searchTerms
-      .filter(term => term.startsWith('<!'))
-      .map(term => term.slice(2))
-      .map(term => {
-        console.log(normalisedTags.get(term));
-        return normalisedTags.get(term);
-      })
-      .filter(res => res != undefined);
+        .filter(term => term.startsWith('<!'))
+        .map(term => term.slice(2))
+        .map(term => {
+          console.log(normalisedTags.get(term));
+          return normalisedTags.get(term);
+        })
+        .filter(res => res != undefined);
 
       renderFilteredMeals(includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited);
       delayedSaveSearchQueryToHash(searchQuery);
@@ -49,9 +51,9 @@ fetch(mealsUrl)
 
     const tagsMatchQuery = (tags, inheritedTags, includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited) =>
       includeTags.every(tag => tags.includes(tag))
-        && !tags.some(tag => excludeTags.includes(tag))
-        && includeTagsWithInherited.every(tag => tags.includes(tag) || inheritedTags.includes(tag))
-        && !(tags.some(tag => excludeTagsWithInherited.includes(tag)) || inheritedTags.some(tag => excludeTagsWithInherited.includes(tag)));
+      && !tags.some(tag => excludeTags.includes(tag))
+      && includeTagsWithInherited.every(tag => tags.includes(tag) || inheritedTags.includes(tag))
+      && !(tags.some(tag => excludeTagsWithInherited.includes(tag)) || inheritedTags.some(tag => excludeTagsWithInherited.includes(tag)));
 
     const renderFilteredMeals = (includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited) => {
       const listEl = document.createElement('ul');
@@ -121,8 +123,8 @@ fetch(mealsUrl)
       loadSearchQueryFromHash();
     }
 
-    reloadMealList();
-});
+    reloadPage();
+  });
 
 const getMealUrl = (source) => {
   if (source.type == 'recibase') {
@@ -152,20 +154,30 @@ const delayedSaveSearchQueryToHash = (searchQuery) => {
 };
 
 const saveSearchQueryToHash = (searchQuery) => {
-  if (searchQuery != defaultSearchQuery) {
-    location.hash = encodeURIComponent(searchQuery);
+  if (searchQuery != defaultSearchQuery || currentSortingMethodIndex != defaultSortingMethodIndex) {
+    const hashString = `${currentSortingMethodIndex}-${searchQuery}`;
+    location.hash = encodeURIComponent(hashString);
   }
 };
 
 const loadSearchQueryFromHash = () => {
-  tagsSearchEl.value = decodeURIComponent(location.hash.slice(1));
+  const hashString = decodeURIComponent(location.hash.slice(1));
+  const match = hashString.match(hashStringRegex);
+
+  if (match !== null) {
+    currentSortingMethodIndex = parseInt(match[1], 10);
+    tagsSearchEl.value = match[2];
+  } else {
+    tagsSearchEl.value = hashString;
+  }
 };
 
-const reloadMealList = () => {
+const reloadPage = () => {
   tagsSearchEl.dispatchEvent(new Event('input', {
     bubbles: true,
     cancelable: true,
   }));
+  sortNameEl.textContent = sortingMethods[currentSortingMethodIndex].name;
 };
 
 const sortByLastEaten = (isAscending) => (left, right) => {
@@ -182,19 +194,19 @@ const sortByLastEaten = (isAscending) => (left, right) => {
 const sortingMethods = [
   {
     name: "Last Eaten ▲",
-    sortFunction : sortByLastEaten(true)
+    sortFunction: sortByLastEaten(true)
   },
   {
     name: "Last Eaten ▼",
-    sortFunction : sortByLastEaten(false)
+    sortFunction: sortByLastEaten(false)
   },
   {
     name: "Times Eaten ▲",
-    sortFunction : (left, right) => left.times_eaten - right.times_eaten
+    sortFunction: (left, right) => left.times_eaten - right.times_eaten
   },
   {
     name: "Times Eaten ▼",
-    sortFunction : (left, right) => right.times_eaten - left.times_eaten
+    sortFunction: (left, right) => right.times_eaten - left.times_eaten
   },
   {
     name: "Name ▼",
@@ -208,8 +220,8 @@ const sortingMethods = [
 
 const changeSortingMethod = () => {
   currentSortingMethodIndex = (currentSortingMethodIndex + 1) % sortingMethods.length;
-  sortNameEl.textContent = sortingMethods[currentSortingMethodIndex].name;
-  reloadMealList();
+  reloadPage();
+  delayedSaveSearchQueryToHash(tagsSearchEl.value);
 };
 
 sortBoxEl.addEventListener('click', changeSortingMethod);
