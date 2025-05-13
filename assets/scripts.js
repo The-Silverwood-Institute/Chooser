@@ -6,6 +6,7 @@ const defaultSearchQuery = tagsSearchEl.value;
 const defaultDate = new Date(0);
 const defaultSortingMethodIndex = 0;
 const hashStringRegex = /^(\d+)\-(.+)$/;
+const monthFilterRegex = /^([\<\>])([0-9]+)\m$/;
 var inactivityTimer;
 var currentSortingMethodIndex = defaultSortingMethodIndex;
 
@@ -35,17 +36,25 @@ fetch(mealsUrl)
         .map(term => term.slice(1))
         .map(term => normalisedTags.get(term))
         .filter(res => res != undefined);
-      console.log(searchTerms);
+      const monthFilters = searchTerms
+        .map(term => monthFilterRegex.exec(term))
+        .filter(m => m)
+        .map(match => {
+        const d = new Date();
+        d.setMonth(d.getMonth() - match[2]);
+        return [match[1], d];
+      });
+      const beforeDates = monthFilters.filter(match => match[0] === '<').map(m => m[1]);
+      const afterDates = monthFilters.filter(match => match[0] === '>').map(m => m[1]);
       const excludeTagsWithInherited = searchTerms
         .filter(term => term.startsWith('<!'))
         .map(term => term.slice(2))
         .map(term => {
-          console.log(normalisedTags.get(term));
           return normalisedTags.get(term);
         })
         .filter(res => res != undefined);
 
-      renderFilteredMeals(includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited);
+      renderFilteredMeals(includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited, beforeDates, afterDates);
       delayedSaveSearchQueryToHash(searchQuery);
     });
 
@@ -55,7 +64,10 @@ fetch(mealsUrl)
       && includeTagsWithInherited.every(tag => tags.includes(tag) || inheritedTags.includes(tag))
       && !(tags.some(tag => excludeTagsWithInherited.includes(tag)) || inheritedTags.some(tag => excludeTagsWithInherited.includes(tag)));
 
-    const renderFilteredMeals = (includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited) => {
+    const lastEatenMatchesQuery = (lastEaten, beforeDates, afterDates) =>
+      lastEaten === null || (beforeDates.every(date => lastEaten < date) && afterDates.every(date => lastEaten > date));
+
+    const renderFilteredMeals = (includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited, beforeDates, afterDates) => {
       const listEl = document.createElement('ul');
       listEl.id = 'meal-list';
       listEl.classList.add('mdc-list', 'mdc-list--two-line');
@@ -67,7 +79,7 @@ fetch(mealsUrl)
       document.getElementById('excludes').textContent = excludeTags.concat(excludeTagsWithInherited.map(tag => `<!${tag}`));
 
       const visibleMeals = !filterMeals ? meals : meals.filter(meal =>
-        tagsMatchQuery(meal.tags, meal.inherited_tags, includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited)
+        tagsMatchQuery(meal.tags, meal.inherited_tags, includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited) && lastEatenMatchesQuery(meal.last_eaten, beforeDates, afterDates)
       );
 
       document.getElementById('count').textContent = visibleMeals.length;
