@@ -247,8 +247,6 @@ tagListToggleEl.addEventListener('click', () => {
   tagsListWrapperEl.hidden = !tagsListWrapperEl.hidden;
 
   tagsListIconEl.textContent = tagsListWrapperEl.hidden ? '►' : '▼';
-
-  
 });
 
 // Initialises Material Design Components
