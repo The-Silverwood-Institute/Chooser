@@ -2,6 +2,9 @@ const mealsUrl = 'https://api.reciba.se/meals/'
 const tagsSearchEl = document.getElementById('tags-search');
 const sortBoxEl = document.getElementById('sort-box');
 const sortNameEl = document.getElementById('sort-name');
+const tagListToggleEl = document.getElementById('tags-list-toggle');
+const tagsListWrapperEl = document.getElementById('tags-list-wrapper');
+const tagsListIconEl = document.getElementById('tags-list-icon');
 const defaultSearchQuery = tagsSearchEl.value;
 const defaultDate = new Date(0);
 const defaultSortingMethodIndex = 0;
@@ -239,6 +242,14 @@ const changeSortingMethod = () => {
 sortBoxEl.addEventListener('click', changeSortingMethod);
 
 setTimeout(displayNoticeIfStillLoading, 2000);
+
+tagListToggleEl.addEventListener('click', () => {
+  tagsListWrapperEl.hidden = !tagsListWrapperEl.hidden;
+
+  tagsListIconEl.textContent = tagsListWrapperEl.hidden ? '►' : '▼';
+
+  
+});
 
 // Initialises Material Design Components
 // See: https://github.com/material-components/material-components-web#javascript

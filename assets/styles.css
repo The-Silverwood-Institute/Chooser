@@ -33,7 +33,7 @@ main {
   padding-right: 4px;
 }
 
-#meta #sort-box {
+#meta #sort-box, #tags-list-toggle {
   cursor: pointer;
 }
 
