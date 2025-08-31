@@ -99,10 +99,12 @@ fetch(mealsUrl)
         const wrapperEl = document.createElement('span');
         wrapperEl.classList.add('mdc-list-item__text');
 
+        const iconEls = getMealIcons(meal);
+        iconEls.forEach(iconEl => titleEl.appendChild(iconEl));
+
         const mealSourceUrl = meal.source ? getMealUrl(meal.source) : null;
 
         if (mealSourceUrl) {
-          titleEl.textContent += ` [${meal.source.type[0].toUpperCase()}]`
           const linkEl = document.createElement('a');
           linkEl.href = mealSourceUrl;
 
@@ -153,6 +155,50 @@ const getMealUrl = (source) => {
     return null;
   }
 }
+
+const getMealIcons = (meal) => {
+  let icons = [];
+
+  if (meal.source !== null) {
+    if (meal.source.type === 'recibase') {
+      icons.push('fa-registered');
+    } else if (meal.source.type === 'online') {
+      icons.push('fa-globe');
+    } else if (meal.source.type === 'google_drive') {
+      icons.push('fa-google-drive');
+    }
+  }
+
+  if (meal.dated_notes.length > 0) {
+    icons.push('fa-comments');
+  }
+  
+  return icons.map(iconName => {
+    const i = document.createElement('img');
+    i.src = `/assets/${iconName}.svg`;
+    i.classList.add("icon");
+    i.setAttribute('icon-name', iconName);
+    if (iconName == 'fa-comments') {
+      i.addEventListener('click', event => displayMealComments(event, meal.dated_notes));
+    }
+    return i;
+  });
+};
+
+const displayMealComments = (event, datedNotes) => {
+  event.preventDefault();
+
+  const parentEl = event.target.closest(".mdc-list-item__text")
+  if (!parentEl.classList.contains('comments-expanded')){
+    datedNotes.forEach(datedNote => {
+      const noteEl = document.createElement('span');
+      noteEl.classList.add('mdc-list-item__secondary-text');
+      noteEl.textContent = `${datedNote.date}: ${datedNote.note}`;
+      parentEl.appendChild(noteEl);
+    });
+    parentEl.classList.add('comments-expanded');
+  }
+};
 
 const displayNoticeIfStillLoading = () => {
   const stillLoadingIndicatorEl = document.getElementById('still-loading');

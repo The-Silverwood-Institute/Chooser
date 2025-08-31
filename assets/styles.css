@@ -41,6 +41,15 @@ main {
   white-space: normal;
 }
 
+.icon {
+  height: 1.2em;
+  opacity: 0.8;
+}
+
+.icon[icon-name="fa-comments"] {
+  cursor: pointer;
+}
+
 footer a {
   margin: .5rem;
 }
