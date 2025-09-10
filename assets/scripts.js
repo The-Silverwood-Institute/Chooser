@@ -186,6 +186,10 @@ const getMealIcons = (meal) => {
 };
 
 const displayMealComments = (event, datedNotes) => {
+  if (!event.target.classList.contains('icon')) {
+    return;
+  }
+
   event.preventDefault();
 
   const parentEl = event.target.closest(".mdc-list-item__text")
