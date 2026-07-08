@@ -7,17 +7,32 @@ const tagsListWrapperEl = document.getElementById('tags-list-wrapper');
 const tagsListIconEl = document.getElementById('tags-list-icon');
 const defaultSearchQuery = tagsSearchEl.value;
 const defaultDate = new Date(0);
-const defaultSortingMethodIndex = 0;
+const BEST_SORT_INDEX = 6;
+const defaultSortingMethodIndex = BEST_SORT_INDEX;
+const MS_PER_MONTH = 30.44 * 24 * 60 * 60 * 1000;
+const bestScoreWeights = {
+  timesEaten: 5,
+  recentPenalty: 8,
+  featured: 6,
+  newTag: 4,
+  neverEaten: 3,
+  neverEatenTag: 3,
+  infrequent: 2,
+  stale: 4,
+  popularRediscovery: 2,
+};
 const hashStringRegex = /^(\d+)\-(.+)$/;
 const monthFilterRegex = /^([\<\>])([0-9]+)\m$/;
 var inactivityTimer;
 var currentSortingMethodIndex = defaultSortingMethodIndex;
+var bestSortReferenceDate = new Date();
 
 fetch(mealsUrl)
   .then(resp => resp.json())
   .then(rawMeals => {
     const meals = rawMeals.map(meal => {
       meal.last_eaten = meal.last_eaten !== null ? new Date(meal.last_eaten) : null;
+      meal.featured = meal.featured !== null ? new Date(meal.featured) : null;
       return meal;
     });
     const tags = new Set(meals.flatMap(meal => meal.tags));
@@ -87,6 +102,9 @@ fetch(mealsUrl)
 
       document.getElementById('count').textContent = visibleMeals.length;
 
+      bestSortReferenceDate = new Date();
+      const showBestScore = currentSortingMethodIndex === BEST_SORT_INDEX;
+
       visibleMeals.sort(sortingMethods[currentSortingMethodIndex].sortFunction).forEach(meal => {
         const titleEl = document.createElement('span');
         titleEl.classList.add('mdc-list-item__primary-text');
@@ -119,6 +137,13 @@ fetch(mealsUrl)
         }
 
         wrapperEl.appendChild(tagsEl);
+
+        if (showBestScore) {
+          const scoreEl = document.createElement('span');
+          scoreEl.classList.add('mdc-list-item__secondary-text', 'meal-score');
+          scoreEl.textContent = `Score: ${bestScore(meal, bestSortReferenceDate).toFixed(1)}`;
+          wrapperEl.appendChild(scoreEl);
+        }
 
         if (meal.last_eaten !== null) {
           const lastEatenEl = document.createElement('span');
@@ -245,6 +270,65 @@ const reloadPage = () => {
   sortNameEl.textContent = sortingMethods[currentSortingMethodIndex].name;
 };
 
+const monthsBetween = (from, to) => (to - from) / MS_PER_MONTH;
+
+const linearDecay = (elapsed, windowMonths) =>
+  elapsed >= windowMonths ? 0 : 1 - elapsed / windowMonths;
+
+const bestScore = (meal, now = new Date()) => {
+  if (meal.tags.includes('Not a Meal')) {
+    return -Infinity;
+  }
+
+  let score = Math.log1p(meal.times_eaten) * bestScoreWeights.timesEaten;
+
+  if (meal.featured !== null) {
+    const monthsFeatured = monthsBetween(meal.featured, now);
+    score += bestScoreWeights.featured * linearDecay(monthsFeatured, 6);
+  }
+
+  if (meal.last_eaten !== null) {
+    const monthsSince = monthsBetween(meal.last_eaten, now);
+    score -= bestScoreWeights.recentPenalty * linearDecay(monthsSince, 4);
+    if (monthsSince > 6) {
+      score += bestScoreWeights.stale * Math.min((monthsSince - 6) / 6, 1);
+    }
+    if (meal.tags.includes('Popular') && monthsSince > 3) {
+      score += bestScoreWeights.popularRediscovery;
+    }
+  } else {
+    score += bestScoreWeights.neverEaten;
+  }
+
+  if (meal.tags.includes('New')) {
+    score += bestScoreWeights.newTag;
+  }
+  if (meal.tags.includes('Never Eaten')) {
+    score += bestScoreWeights.neverEatenTag;
+  }
+  if (meal.tags.includes('Infrequent')) {
+    score += bestScoreWeights.infrequent;
+  }
+
+  return score;
+};
+
+const sortByBest = (left, right) => {
+  const scoreDiff = bestScore(right, bestSortReferenceDate) - bestScore(left, bestSortReferenceDate);
+  if (scoreDiff !== 0) {
+    return scoreDiff;
+  }
+
+  const leftDate = left.last_eaten !== null ? left.last_eaten : defaultDate;
+  const rightDate = right.last_eaten !== null ? right.last_eaten : defaultDate;
+  const dateDiff = leftDate - rightDate;
+  if (dateDiff !== 0) {
+    return dateDiff;
+  }
+
+  return left.name.localeCompare(right.name);
+};
+
 const sortByLastEaten = (isAscending) => (left, right) => {
   const leftDate = left.last_eaten !== null ? left.last_eaten : defaultDate;
   const rightDate = right.last_eaten !== null ? right.last_eaten : defaultDate;
@@ -280,6 +364,10 @@ const sortingMethods = [
   {
     name: "Name ▲",
     sortFunction: (left, right) => right.name.localeCompare(left.name)
+  },
+  {
+    name: "Best",
+    sortFunction: sortByBest
   }
 ];
 

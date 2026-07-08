@@ -15,7 +15,7 @@ main {
   width: 100%;
 }
 
-.last-eaten {
+.last-eaten, .meal-score {
   font-style: italic;
 }
 
