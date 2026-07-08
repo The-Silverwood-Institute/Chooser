@@ -5,22 +5,29 @@ const sortNameEl = document.getElementById('sort-name');
 const tagListToggleEl = document.getElementById('tags-list-toggle');
 const tagsListWrapperEl = document.getElementById('tags-list-wrapper');
 const tagsListIconEl = document.getElementById('tags-list-icon');
+const weightsListToggleEl = document.getElementById('weights-list-toggle');
+const weightsListWrapperEl = document.getElementById('weights-list-wrapper');
+const weightsListIconEl = document.getElementById('weights-list-icon');
+const weightsListEl = document.getElementById('weights-list');
 const defaultSearchQuery = tagsSearchEl.value;
 const defaultDate = new Date(0);
 const BEST_SORT_INDEX = 6;
 const defaultSortingMethodIndex = BEST_SORT_INDEX;
 const MS_PER_MONTH = 30.44 * 24 * 60 * 60 * 1000;
-const bestScoreWeights = {
-  timesEaten: 5,
-  recentPenalty: 8,
-  featured: 6,
-  newTag: 4,
-  neverEaten: 3,
-  neverEatenTag: 3,
-  infrequent: 2,
-  stale: 4,
-  popularRediscovery: 2,
-};
+const bestScoreWeightConfig = [
+  { key: 'timesEaten', label: 'Times eaten', min: 0, max: 15, default: 5 },
+  { key: 'recentPenalty', label: 'Recent penalty', min: 0, max: 20, default: 8 },
+  { key: 'featured', label: 'Featured', min: 0, max: 15, default: 6 },
+  { key: 'newTag', label: 'New tag', min: 0, max: 10, default: 4 },
+  { key: 'neverEaten', label: 'Never tried', min: 0, max: 10, default: 3 },
+  { key: 'neverEatenTag', label: 'Never Eaten tag', min: 0, max: 10, default: 3 },
+  { key: 'infrequent', label: 'Infrequent tag', min: 0, max: 10, default: 2 },
+  { key: 'stale', label: 'Staleness bonus', min: 0, max: 15, default: 4 },
+  { key: 'popularRediscovery', label: 'Popular rediscovery', min: 0, max: 10, default: 2 },
+];
+const bestScoreWeights = Object.fromEntries(
+  bestScoreWeightConfig.map(({ key, default: defaultValue }) => [key, defaultValue])
+);
 const hashStringRegex = /^(\d+)\-(.+)$/;
 const monthFilterRegex = /^([\<\>])([0-9]+)\m$/;
 var inactivityTimer;
@@ -386,6 +393,48 @@ tagListToggleEl.addEventListener('click', () => {
 
   tagsListIconEl.textContent = tagsListWrapperEl.hidden ? '►' : '▼';
 });
+
+const initWeightsPanel = () => {
+  bestScoreWeightConfig.forEach(({ key, label, min, max }) => {
+    const rowEl = document.createElement('div');
+    rowEl.classList.add('weight-row');
+
+    const labelEl = document.createElement('label');
+    labelEl.htmlFor = `weight-${key}`;
+    labelEl.textContent = label;
+
+    const sliderEl = document.createElement('input');
+    sliderEl.type = 'range';
+    sliderEl.id = `weight-${key}`;
+    sliderEl.min = min;
+    sliderEl.max = max;
+    sliderEl.step = 1;
+    sliderEl.value = bestScoreWeights[key];
+
+    const valueEl = document.createElement('span');
+    valueEl.classList.add('weight-value');
+    valueEl.textContent = bestScoreWeights[key];
+
+    sliderEl.addEventListener('input', () => {
+      bestScoreWeights[key] = parseInt(sliderEl.value, 10);
+      valueEl.textContent = bestScoreWeights[key];
+      reloadPage();
+    });
+
+    rowEl.appendChild(labelEl);
+    rowEl.appendChild(sliderEl);
+    rowEl.appendChild(valueEl);
+    weightsListEl.appendChild(rowEl);
+  });
+};
+
+weightsListToggleEl.addEventListener('click', () => {
+  weightsListWrapperEl.hidden = !weightsListWrapperEl.hidden;
+
+  weightsListIconEl.textContent = weightsListWrapperEl.hidden ? '►' : '▼';
+});
+
+initWeightsPanel();
 
 // Initialises Material Design Components
 // See: https://github.com/material-components/material-components-web#javascript
