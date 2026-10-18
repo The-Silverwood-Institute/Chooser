@@ -1,4 +1,5 @@
 const mealsUrl = 'https://api.reciba.se/meals/'
+const tagsUrl = 'https://api.reciba.se/tags'
 const tagsSearchEl = document.getElementById('tags-search');
 const sortBoxEl = document.getElementById('sort-box');
 const sortNameEl = document.getElementById('sort-name');
@@ -34,18 +35,59 @@ var inactivityTimer;
 var currentSortingMethodIndex = defaultSortingMethodIndex;
 var bestSortReferenceDate = new Date();
 
-fetch(mealsUrl)
-  .then(resp => resp.json())
-  .then(rawMeals => {
+const formatCategoryName = (category) => category.charAt(0).toUpperCase() + category.slice(1);
+
+const renderTagList = (tagRecords) => {
+  tagsListWrapperEl.replaceChildren();
+
+  const tagsByCategory = new Map();
+  tagRecords.forEach(tag => {
+    if (!tagsByCategory.has(tag.category)) {
+      tagsByCategory.set(tag.category, []);
+    }
+    tagsByCategory.get(tag.category).push(tag);
+  });
+
+  tagsByCategory.forEach((categoryTags, category) => {
+    const categoryEl = document.createElement('div');
+    categoryEl.classList.add('tag-category');
+
+    const nameEl = document.createElement('p');
+    nameEl.classList.add('tag-category-name');
+    nameEl.textContent = formatCategoryName(category);
+
+    const listEl = document.createElement('ul');
+    categoryTags.forEach(tag => {
+      const itemEl = document.createElement('li');
+      itemEl.textContent = tag.name;
+      if (tag.description) {
+        itemEl.title = tag.description;
+      }
+      listEl.appendChild(itemEl);
+    });
+
+    categoryEl.appendChild(nameEl);
+    categoryEl.appendChild(listEl);
+    tagsListWrapperEl.appendChild(categoryEl);
+  });
+};
+
+Promise.all([
+  fetch(mealsUrl).then(resp => resp.json()),
+  fetch(tagsUrl).then(resp => resp.json()),
+]).then(([rawMeals, tagsResponse]) => {
     const meals = rawMeals.map(meal => {
       meal.last_eaten = meal.last_eaten !== null ? new Date(meal.last_eaten) : null;
       meal.featured = meal.featured !== null ? new Date(meal.featured) : null;
       return meal;
     });
-    const tags = new Set(meals.flatMap(meal => meal.tags));
-    const normalisedTags = new Map([...tags].map(tag => [tag.toLowerCase(), tag]))
+    const tagRecords = tagsResponse.tags;
+    const normalisedTags = new Map(tagRecords.map(tag => [tag.name.toLowerCase(), tag.name]));
+    const impliedTagsByName = new Map(tagRecords.map(tag => [tag.name, tag.implied_tags]));
 
-    document.getElementById('tags-list').textContent = Array.from(tags).join(', ');
+    const impliedTagsFor = (mealTags) => mealTags.flatMap(tag => impliedTagsByName.get(tag) || []);
+
+    renderTagList(tagRecords);
 
     tagsSearchEl.addEventListener('input', ev => {
       const searchQuery = ev.target.value;
@@ -56,7 +98,7 @@ fetch(mealsUrl)
         .map(term => term.slice(1))
         .map(term => normalisedTags.get(term))
         .filter(res => res != undefined);
-      const includeTagsWithInherited = searchTerms
+      const includeImpliedTags = searchTerms
         .filter(term => term.startsWith('<') && !term.startsWith('<!'))
         .map(term => term.slice(1))
         .map(term => normalisedTags.get(term))
@@ -71,7 +113,7 @@ fetch(mealsUrl)
       });
       const beforeDates = monthFilters.filter(match => match[0] === '<').map(m => m[1]);
       const afterDates = monthFilters.filter(match => match[0] === '>').map(m => m[1]);
-      const excludeTagsWithInherited = searchTerms
+      const excludeImpliedTags = searchTerms
         .filter(term => term.startsWith('<!'))
         .map(term => term.slice(2))
         .map(term => {
@@ -79,32 +121,32 @@ fetch(mealsUrl)
         })
         .filter(res => res != undefined);
 
-      renderFilteredMeals(includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited, beforeDates, afterDates);
+      renderFilteredMeals(includeTags, includeImpliedTags, excludeTags, excludeImpliedTags, beforeDates, afterDates);
       delayedSaveSearchQueryToHash(searchQuery);
     });
 
-    const tagsMatchQuery = (tags, inheritedTags, includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited) =>
+    const tagsMatchQuery = (tags, impliedTags, includeTags, includeImpliedTags, excludeTags, excludeImpliedTags) =>
       includeTags.every(tag => tags.includes(tag))
       && !tags.some(tag => excludeTags.includes(tag))
-      && includeTagsWithInherited.every(tag => tags.includes(tag) || inheritedTags.includes(tag))
-      && !(tags.some(tag => excludeTagsWithInherited.includes(tag)) || inheritedTags.some(tag => excludeTagsWithInherited.includes(tag)));
+      && includeImpliedTags.every(tag => tags.includes(tag) || impliedTags.includes(tag))
+      && !(tags.some(tag => excludeImpliedTags.includes(tag)) || impliedTags.some(tag => excludeImpliedTags.includes(tag)));
 
     const lastEatenMatchesQuery = (lastEaten, beforeDates, afterDates) =>
       lastEaten === null || (beforeDates.every(date => lastEaten < date) && afterDates.every(date => lastEaten > date));
 
-    const renderFilteredMeals = (includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited, beforeDates, afterDates) => {
+    const renderFilteredMeals = (includeTags, includeImpliedTags, excludeTags, excludeImpliedTags, beforeDates, afterDates) => {
       const listEl = document.createElement('ul');
       listEl.id = 'meal-list';
       listEl.classList.add('mdc-list', 'mdc-list--two-line');
 
-      const filterMeals = includeTags.length > 0 || excludeTags.length > 0;
-      document.getElementById('requires-box').hidden = includeTags.length == 0 && includeTagsWithInherited.length == 0;
-      document.getElementById('requires').textContent = includeTags.concat(includeTagsWithInherited.map(tag => `<${tag}`));
-      document.getElementById('excludes-box').hidden = excludeTags.length == 0 && excludeTagsWithInherited.length == 0;
-      document.getElementById('excludes').textContent = excludeTags.concat(excludeTagsWithInherited.map(tag => `<!${tag}`));
+      const filterMeals = includeTags.length > 0 || includeImpliedTags.length > 0 || excludeTags.length > 0 || excludeImpliedTags.length > 0 || beforeDates.length > 0 || afterDates.length > 0;
+      document.getElementById('requires-box').hidden = includeTags.length == 0 && includeImpliedTags.length == 0;
+      document.getElementById('requires').textContent = includeTags.concat(includeImpliedTags.map(tag => `<${tag}`));
+      document.getElementById('excludes-box').hidden = excludeTags.length == 0 && excludeImpliedTags.length == 0;
+      document.getElementById('excludes').textContent = excludeTags.concat(excludeImpliedTags.map(tag => `<!${tag}`));
 
       const visibleMeals = !filterMeals ? meals : meals.filter(meal =>
-        tagsMatchQuery(meal.tags, meal.inherited_tags, includeTags, includeTagsWithInherited, excludeTags, excludeTagsWithInherited) && lastEatenMatchesQuery(meal.last_eaten, beforeDates, afterDates)
+        tagsMatchQuery(meal.tags, impliedTagsFor(meal.tags), includeTags, includeImpliedTags, excludeTags, excludeImpliedTags) && lastEatenMatchesQuery(meal.last_eaten, beforeDates, afterDates)
       );
 
       document.getElementById('count').textContent = visibleMeals.length;
